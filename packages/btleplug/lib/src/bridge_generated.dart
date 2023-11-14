@@ -58,9 +58,93 @@ abstract class Btleplug {
 
   FlutterRustBridgeTaskConstMeta get kDisconnectConstMeta;
 
+  Stream<List<BleService>> discoverServices({required String id, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kDiscoverServicesConstMeta;
+
   Stream<LogEntry> createLogStream({dynamic hint});
 
   FlutterRustBridgeTaskConstMeta get kCreateLogStreamConstMeta;
+
+  Future<String> uuidMethodBleCharacteristic({required BleCharacteristic that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kUuidMethodBleCharacteristicConstMeta;
+
+  Future<String> serviceUuidMethodBleCharacteristic({required BleCharacteristic that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kServiceUuidMethodBleCharacteristicConstMeta;
+
+  Future<CharacteristicProperties> propertiesMethodBleCharacteristic({required BleCharacteristic that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kPropertiesMethodBleCharacteristicConstMeta;
+
+  Future<List<BleDescriptor>> descriptorsMethodBleCharacteristic({required BleCharacteristic that, dynamic hint});
+
+  FlutterRustBridgeTaskConstMeta get kDescriptorsMethodBleCharacteristicConstMeta;
+
+  DropFnType get dropOpaqueCharacteristic;
+  ShareFnType get shareOpaqueCharacteristic;
+  OpaqueTypeFinalizer get CharacteristicFinalizer;
+}
+
+@sealed
+class Characteristic extends FrbOpaque {
+  final Btleplug bridge;
+  Characteristic.fromRaw(int ptr, int size, this.bridge) : super.unsafe(ptr, size);
+  @override
+  DropFnType get dropFn => bridge.dropOpaqueCharacteristic;
+
+  @override
+  ShareFnType get shareFn => bridge.shareOpaqueCharacteristic;
+
+  @override
+  OpaqueTypeFinalizer get staticFinalizer => bridge.CharacteristicFinalizer;
+}
+
+/// A Bluetooth characteristic. Characteristics are the main way you will interact with other
+/// bluetooth devices. Characteristics are identified by a UUID which may be standardized
+/// (like 0x2803, which identifies a characteristic for reading heart rate measurements) but more
+/// often are specific to a particular device. The standard set of characteristics can be found
+/// [here](https://www.bluetooth.com/specifications/gatt/characteristics).
+///
+/// A characteristic may be interacted with in various ways depending on its properties. You may be
+/// able to write to it, read from it, set its notify or indicate status, or send a command to it.
+class BleCharacteristic {
+  final Btleplug bridge;
+  final Characteristic characteristic;
+
+  const BleCharacteristic({
+    required this.bridge,
+    required this.characteristic,
+  });
+
+  Future<String> uuid({dynamic hint}) => bridge.uuidMethodBleCharacteristic(
+        that: this,
+      );
+
+  Future<String> serviceUuid({dynamic hint}) => bridge.serviceUuidMethodBleCharacteristic(
+        that: this,
+      );
+
+  Future<CharacteristicProperties> properties({dynamic hint}) => bridge.propertiesMethodBleCharacteristic(
+        that: this,
+      );
+
+  Future<List<BleDescriptor>> descriptors({dynamic hint}) => bridge.descriptorsMethodBleCharacteristic(
+        that: this,
+      );
+}
+
+class BleDescriptor {
+  final String uuid;
+  final String serviceUuid;
+  final String characteristicUuid;
+
+  const BleDescriptor({
+    required this.uuid,
+    required this.serviceUuid,
+    required this.characteristicUuid,
+  });
 }
 
 /// This is the BleDevice intended to show in Dart/Flutter
@@ -100,6 +184,43 @@ class BleEvent with _$BleEvent {
     required String id,
     required List<String> services,
   }) = BleEvent_ServicesAdvertisement;
+}
+
+/// A GATT service. Services are groups of characteristics, which may be standard or
+/// device-specific.
+class BleService {
+  final String uuid;
+  final bool primary;
+  final List<BleCharacteristic> characteristics;
+
+  const BleService({
+    required this.uuid,
+    required this.primary,
+    required this.characteristics,
+  });
+}
+
+/// A set of properties that indicate what operations are supported by a Characteristic.
+class CharacteristicProperties {
+  final bool broadcast;
+  final bool read;
+  final bool writeWithoutResponse;
+  final bool write;
+  final bool notify;
+  final bool indicate;
+  final bool authenticatedSignedWrites;
+  final bool extendedProperties;
+
+  const CharacteristicProperties({
+    required this.broadcast,
+    required this.read,
+    required this.writeWithoutResponse,
+    required this.write,
+    required this.notify,
+    required this.indicate,
+    required this.authenticatedSignedWrites,
+    required this.extendedProperties,
+  });
 }
 
 class LogEntry {
@@ -224,6 +345,27 @@ class BtleplugImpl implements Btleplug {
         ],
       );
 
+  Stream<List<BleService>> discoverServices({required String id, dynamic hint}) {
+    var arg0 = _platform.api2wire_String(id);
+    return _platform.executeStream(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_discover_services(port_, arg0),
+      parseSuccessData: _wire2api_list_ble_service,
+      parseErrorData: _wire2api_FrbAnyhowException,
+      constMeta: kDiscoverServicesConstMeta,
+      argValues: [
+        id
+      ],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kDiscoverServicesConstMeta => const FlutterRustBridgeTaskConstMeta(
+        debugName: "discover_services",
+        argNames: [
+          "id"
+        ],
+      );
+
   Stream<LogEntry> createLogStream({dynamic hint}) {
     return _platform.executeStream(FlutterRustBridgeTask(
       callFfi: (port_) => _platform.inner.wire_create_log_stream(port_),
@@ -240,10 +382,102 @@ class BtleplugImpl implements Btleplug {
         argNames: [],
       );
 
+  Future<String> uuidMethodBleCharacteristic({required BleCharacteristic that, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_ble_characteristic(that);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_uuid__method__BleCharacteristic(port_, arg0),
+      parseSuccessData: _wire2api_String,
+      parseErrorData: null,
+      constMeta: kUuidMethodBleCharacteristicConstMeta,
+      argValues: [
+        that
+      ],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kUuidMethodBleCharacteristicConstMeta => const FlutterRustBridgeTaskConstMeta(
+        debugName: "uuid__method__BleCharacteristic",
+        argNames: [
+          "that"
+        ],
+      );
+
+  Future<String> serviceUuidMethodBleCharacteristic({required BleCharacteristic that, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_ble_characteristic(that);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_service_uuid__method__BleCharacteristic(port_, arg0),
+      parseSuccessData: _wire2api_String,
+      parseErrorData: null,
+      constMeta: kServiceUuidMethodBleCharacteristicConstMeta,
+      argValues: [
+        that
+      ],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kServiceUuidMethodBleCharacteristicConstMeta => const FlutterRustBridgeTaskConstMeta(
+        debugName: "service_uuid__method__BleCharacteristic",
+        argNames: [
+          "that"
+        ],
+      );
+
+  Future<CharacteristicProperties> propertiesMethodBleCharacteristic({required BleCharacteristic that, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_ble_characteristic(that);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_properties__method__BleCharacteristic(port_, arg0),
+      parseSuccessData: _wire2api_characteristic_properties,
+      parseErrorData: null,
+      constMeta: kPropertiesMethodBleCharacteristicConstMeta,
+      argValues: [
+        that
+      ],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kPropertiesMethodBleCharacteristicConstMeta => const FlutterRustBridgeTaskConstMeta(
+        debugName: "properties__method__BleCharacteristic",
+        argNames: [
+          "that"
+        ],
+      );
+
+  Future<List<BleDescriptor>> descriptorsMethodBleCharacteristic({required BleCharacteristic that, dynamic hint}) {
+    var arg0 = _platform.api2wire_box_autoadd_ble_characteristic(that);
+    return _platform.executeNormal(FlutterRustBridgeTask(
+      callFfi: (port_) => _platform.inner.wire_descriptors__method__BleCharacteristic(port_, arg0),
+      parseSuccessData: _wire2api_list_ble_descriptor,
+      parseErrorData: null,
+      constMeta: kDescriptorsMethodBleCharacteristicConstMeta,
+      argValues: [
+        that
+      ],
+      hint: hint,
+    ));
+  }
+
+  FlutterRustBridgeTaskConstMeta get kDescriptorsMethodBleCharacteristicConstMeta => const FlutterRustBridgeTaskConstMeta(
+        debugName: "descriptors__method__BleCharacteristic",
+        argNames: [
+          "that"
+        ],
+      );
+
+  DropFnType get dropOpaqueCharacteristic => _platform.inner.drop_opaque_Characteristic;
+  ShareFnType get shareOpaqueCharacteristic => _platform.inner.share_opaque_Characteristic;
+  OpaqueTypeFinalizer get CharacteristicFinalizer => _platform.CharacteristicFinalizer;
+
   void dispose() {
     _platform.dispose();
   }
 // Section: wire2api
+
+  Characteristic _wire2api_Characteristic(dynamic raw) {
+    return Characteristic.fromRaw(raw[0], raw[1], this);
+  }
 
   FrbAnyhowException _wire2api_FrbAnyhowException(dynamic raw) {
     return FrbAnyhowException(raw as String);
@@ -255,6 +489,25 @@ class BtleplugImpl implements Btleplug {
 
   List<String> _wire2api_StringList(dynamic raw) {
     return (raw as List<dynamic>).cast<String>();
+  }
+
+  BleCharacteristic _wire2api_ble_characteristic(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 1) throw Exception('unexpected arr length: expect 1 but see ${arr.length}');
+    return BleCharacteristic(
+      bridge: this,
+      characteristic: _wire2api_Characteristic(arr[0]),
+    );
+  }
+
+  BleDescriptor _wire2api_ble_descriptor(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return BleDescriptor(
+      uuid: _wire2api_String(arr[0]),
+      serviceUuid: _wire2api_String(arr[1]),
+      characteristicUuid: _wire2api_String(arr[2]),
+    );
   }
 
   BleDevice _wire2api_ble_device(dynamic raw) {
@@ -304,12 +557,53 @@ class BtleplugImpl implements Btleplug {
     }
   }
 
+  BleService _wire2api_ble_service(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3) throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return BleService(
+      uuid: _wire2api_String(arr[0]),
+      primary: _wire2api_bool(arr[1]),
+      characteristics: _wire2api_list_ble_characteristic(arr[2]),
+    );
+  }
+
+  bool _wire2api_bool(dynamic raw) {
+    return raw as bool;
+  }
+
+  CharacteristicProperties _wire2api_characteristic_properties(dynamic raw) {
+    final arr = raw as List<dynamic>;
+    if (arr.length != 8) throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    return CharacteristicProperties(
+      broadcast: _wire2api_bool(arr[0]),
+      read: _wire2api_bool(arr[1]),
+      writeWithoutResponse: _wire2api_bool(arr[2]),
+      write: _wire2api_bool(arr[3]),
+      notify: _wire2api_bool(arr[4]),
+      indicate: _wire2api_bool(arr[5]),
+      authenticatedSignedWrites: _wire2api_bool(arr[6]),
+      extendedProperties: _wire2api_bool(arr[7]),
+    );
+  }
+
   int _wire2api_i64(dynamic raw) {
     return castInt(raw);
   }
 
+  List<BleCharacteristic> _wire2api_list_ble_characteristic(dynamic raw) {
+    return (raw as List<dynamic>).map(_wire2api_ble_characteristic).toList();
+  }
+
+  List<BleDescriptor> _wire2api_list_ble_descriptor(dynamic raw) {
+    return (raw as List<dynamic>).map(_wire2api_ble_descriptor).toList();
+  }
+
   List<BleDevice> _wire2api_list_ble_device(dynamic raw) {
     return (raw as List<dynamic>).map(_wire2api_ble_device).toList();
+  }
+
+  List<BleService> _wire2api_list_ble_service(dynamic raw) {
+    return (raw as List<dynamic>).map(_wire2api_ble_service).toList();
   }
 
   List<MapData> _wire2api_list_map_data(dynamic raw) {

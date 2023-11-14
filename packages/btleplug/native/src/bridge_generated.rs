@@ -20,6 +20,10 @@ use std::sync::Arc;
 
 // Section: imports
 
+use crate::ble::device::BleCharacteristic;
+use crate::ble::device::BleDescriptor;
+use crate::ble::device::BleService;
+use crate::ble::device::CharacteristicProperties;
 use crate::ble::event::BleEvent;
 use crate::ble::event::MapData;
 use crate::ble::scan::BleDevice;
@@ -86,6 +90,21 @@ fn wire_disconnect_impl(port_: MessagePort, id: impl Wire2Api<String> + UnwindSa
         },
     )
 }
+fn wire_discover_services_impl(port_: MessagePort, id: impl Wire2Api<String> + UnwindSafe) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, (), _>(
+        WrapInfo {
+            debug_name: "discover_services",
+            port: Some(port_),
+            mode: FfiCallMode::Stream,
+        },
+        move || {
+            let api_id = id.wire2api();
+            move |task_callback| {
+                discover_services(api_id, task_callback.stream_sink::<_, Vec<BleService>>())
+            }
+        },
+    )
+}
 fn wire_create_log_stream_impl(port_: MessagePort) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, (), _>(
         WrapInfo {
@@ -99,6 +118,70 @@ fn wire_create_log_stream_impl(port_: MessagePort) {
                     task_callback.stream_sink::<_, LogEntry>(),
                 ))
             }
+        },
+    )
+}
+fn wire_uuid__method__BleCharacteristic_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<BleCharacteristic> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, String, _>(
+        WrapInfo {
+            debug_name: "uuid__method__BleCharacteristic",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Result::<_, ()>::Ok(BleCharacteristic::uuid(&api_that))
+        },
+    )
+}
+fn wire_service_uuid__method__BleCharacteristic_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<BleCharacteristic> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, String, _>(
+        WrapInfo {
+            debug_name: "service_uuid__method__BleCharacteristic",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Result::<_, ()>::Ok(BleCharacteristic::service_uuid(&api_that))
+        },
+    )
+}
+fn wire_properties__method__BleCharacteristic_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<BleCharacteristic> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, CharacteristicProperties, _>(
+        WrapInfo {
+            debug_name: "properties__method__BleCharacteristic",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Result::<_, ()>::Ok(BleCharacteristic::properties(&api_that))
+        },
+    )
+}
+fn wire_descriptors__method__BleCharacteristic_impl(
+    port_: MessagePort,
+    that: impl Wire2Api<BleCharacteristic> + UnwindSafe,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap::<_, _, _, Vec<BleDescriptor>, _>(
+        WrapInfo {
+            debug_name: "descriptors__method__BleCharacteristic",
+            port: Some(port_),
+            mode: FfiCallMode::Normal,
+        },
+        move || {
+            let api_that = that.wire2api();
+            move |task_callback| Result::<_, ()>::Ok(BleCharacteristic::descriptors(&api_that))
         },
     )
 }
@@ -132,6 +215,35 @@ impl Wire2Api<u8> for u8 {
 }
 
 // Section: impl IntoDart
+
+impl support::IntoDart for BleCharacteristic {
+    fn into_dart(self) -> support::DartAbi {
+        vec![self.characteristic.into_dart()].into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for BleCharacteristic {}
+impl rust2dart::IntoIntoDart<BleCharacteristic> for BleCharacteristic {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
+impl support::IntoDart for BleDescriptor {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.uuid.into_into_dart().into_dart(),
+            self.service_uuid.into_into_dart().into_dart(),
+            self.characteristic_uuid.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for BleDescriptor {}
+impl rust2dart::IntoIntoDart<BleDescriptor> for BleDescriptor {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
 
 impl support::IntoDart for BleDevice {
     fn into_dart(self) -> support::DartAbi {
@@ -180,6 +292,47 @@ impl support::IntoDart for BleEvent {
 }
 impl support::IntoDartExceptPrimitive for BleEvent {}
 impl rust2dart::IntoIntoDart<BleEvent> for BleEvent {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
+impl support::IntoDart for BleService {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.uuid.into_into_dart().into_dart(),
+            self.primary.into_into_dart().into_dart(),
+            self.characteristics.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for BleService {}
+impl rust2dart::IntoIntoDart<BleService> for BleService {
+    fn into_into_dart(self) -> Self {
+        self
+    }
+}
+
+impl support::IntoDart for CharacteristicProperties {
+    fn into_dart(self) -> support::DartAbi {
+        vec![
+            self.broadcast.into_into_dart().into_dart(),
+            self.read.into_into_dart().into_dart(),
+            self.write_without_response.into_into_dart().into_dart(),
+            self.write.into_into_dart().into_dart(),
+            self.notify.into_into_dart().into_dart(),
+            self.indicate.into_into_dart().into_dart(),
+            self.authenticated_signed_writes
+                .into_into_dart()
+                .into_dart(),
+            self.extended_properties.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl support::IntoDartExceptPrimitive for CharacteristicProperties {}
+impl rust2dart::IntoIntoDart<CharacteristicProperties> for CharacteristicProperties {
     fn into_into_dart(self) -> Self {
         self
     }
@@ -255,13 +408,53 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire_discover_services(port_: MessagePort, id: String) {
+        wire_discover_services_impl(port_, id)
+    }
+
+    #[wasm_bindgen]
     pub fn wire_create_log_stream(port_: MessagePort) {
         wire_create_log_stream_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire_uuid__method__BleCharacteristic(port_: MessagePort, that: JsValue) {
+        wire_uuid__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire_service_uuid__method__BleCharacteristic(port_: MessagePort, that: JsValue) {
+        wire_service_uuid__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire_properties__method__BleCharacteristic(port_: MessagePort, that: JsValue) {
+        wire_properties__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire_descriptors__method__BleCharacteristic(port_: MessagePort, that: JsValue) {
+        wire_descriptors__method__BleCharacteristic_impl(port_, that)
     }
 
     // Section: allocate functions
 
     // Section: related functions
+
+    #[wasm_bindgen]
+    pub fn drop_opaque_Characteristic(ptr: *const c_void) {
+        unsafe {
+            Arc::<Characteristic>::decrement_strong_count(ptr as _);
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn share_opaque_Characteristic(ptr: *const c_void) -> *const c_void {
+        unsafe {
+            Arc::<Characteristic>::increment_strong_count(ptr as _);
+            ptr
+        }
+    }
 
     // Section: impl Wire2Api
 
@@ -279,6 +472,20 @@ mod web {
                 .collect()
         }
     }
+    impl Wire2Api<BleCharacteristic> for JsValue {
+        fn wire2api(self) -> BleCharacteristic {
+            let self_ = self.dyn_into::<JsArray>().unwrap();
+            assert_eq!(
+                self_.length(),
+                1,
+                "Expected 1 elements, got {}",
+                self_.length()
+            );
+            BleCharacteristic {
+                characteristic: self_.get(0).wire2api(),
+            }
+        }
+    }
 
     impl Wire2Api<Vec<u8>> for Box<[u8]> {
         fn wire2api(self) -> Vec<u8> {
@@ -293,6 +500,16 @@ mod web {
     {
         fn wire2api(self) -> Option<T> {
             (!self.is_null() && !self.is_undefined()).then(|| self.wire2api())
+        }
+    }
+    impl Wire2Api<RustOpaque<Characteristic>> for JsValue {
+        fn wire2api(self) -> RustOpaque<Characteristic> {
+            #[cfg(target_pointer_width = "64")]
+            {
+                compile_error!("64-bit pointers are not supported.");
+            }
+
+            unsafe { support::opaque_from_dart((self.as_f64().unwrap() as usize) as _) }
         }
     }
     impl Wire2Api<String> for JsValue {
@@ -345,11 +562,53 @@ mod io {
     }
 
     #[no_mangle]
+    pub extern "C" fn wire_discover_services(port_: i64, id: *mut wire_uint_8_list) {
+        wire_discover_services_impl(port_, id)
+    }
+
+    #[no_mangle]
     pub extern "C" fn wire_create_log_stream(port_: i64) {
         wire_create_log_stream_impl(port_)
     }
 
+    #[no_mangle]
+    pub extern "C" fn wire_uuid__method__BleCharacteristic(
+        port_: i64,
+        that: *mut wire_BleCharacteristic,
+    ) {
+        wire_uuid__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_service_uuid__method__BleCharacteristic(
+        port_: i64,
+        that: *mut wire_BleCharacteristic,
+    ) {
+        wire_service_uuid__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_properties__method__BleCharacteristic(
+        port_: i64,
+        that: *mut wire_BleCharacteristic,
+    ) {
+        wire_properties__method__BleCharacteristic_impl(port_, that)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn wire_descriptors__method__BleCharacteristic(
+        port_: i64,
+        that: *mut wire_BleCharacteristic,
+    ) {
+        wire_descriptors__method__BleCharacteristic_impl(port_, that)
+    }
+
     // Section: allocate functions
+
+    #[no_mangle]
+    pub extern "C" fn new_Characteristic() -> wire_Characteristic {
+        wire_Characteristic::new_with_null_ptr()
+    }
 
     #[no_mangle]
     pub extern "C" fn new_StringList_0(len: i32) -> *mut wire_StringList {
@@ -358,6 +617,11 @@ mod io {
             len,
         };
         support::new_leak_box_ptr(wrap)
+    }
+
+    #[no_mangle]
+    pub extern "C" fn new_box_autoadd_ble_characteristic_0() -> *mut wire_BleCharacteristic {
+        support::new_leak_box_ptr(wire_BleCharacteristic::new_with_null_ptr())
     }
 
     #[no_mangle]
@@ -371,8 +635,28 @@ mod io {
 
     // Section: related functions
 
+    #[no_mangle]
+    pub extern "C" fn drop_opaque_Characteristic(ptr: *const c_void) {
+        unsafe {
+            Arc::<Characteristic>::decrement_strong_count(ptr as _);
+        }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn share_opaque_Characteristic(ptr: *const c_void) -> *const c_void {
+        unsafe {
+            Arc::<Characteristic>::increment_strong_count(ptr as _);
+            ptr
+        }
+    }
+
     // Section: impl Wire2Api
 
+    impl Wire2Api<RustOpaque<Characteristic>> for wire_Characteristic {
+        fn wire2api(self) -> RustOpaque<Characteristic> {
+            unsafe { support::opaque_from_dart(self.ptr as _) }
+        }
+    }
     impl Wire2Api<String> for *mut wire_uint_8_list {
         fn wire2api(self) -> String {
             let vec: Vec<u8> = self.wire2api();
@@ -388,6 +672,19 @@ mod io {
             vec.into_iter().map(Wire2Api::wire2api).collect()
         }
     }
+    impl Wire2Api<BleCharacteristic> for wire_BleCharacteristic {
+        fn wire2api(self) -> BleCharacteristic {
+            BleCharacteristic {
+                characteristic: self.characteristic.wire2api(),
+            }
+        }
+    }
+    impl Wire2Api<BleCharacteristic> for *mut wire_BleCharacteristic {
+        fn wire2api(self) -> BleCharacteristic {
+            let wrap = unsafe { support::box_from_leak_ptr(self) };
+            Wire2Api::<BleCharacteristic>::wire2api(*wrap).into()
+        }
+    }
 
     impl Wire2Api<Vec<u8>> for *mut wire_uint_8_list {
         fn wire2api(self) -> Vec<u8> {
@@ -401,9 +698,21 @@ mod io {
 
     #[repr(C)]
     #[derive(Clone)]
+    pub struct wire_Characteristic {
+        ptr: *const core::ffi::c_void,
+    }
+
+    #[repr(C)]
+    #[derive(Clone)]
     pub struct wire_StringList {
         ptr: *mut *mut wire_uint_8_list,
         len: i32,
+    }
+
+    #[repr(C)]
+    #[derive(Clone)]
+    pub struct wire_BleCharacteristic {
+        characteristic: wire_Characteristic,
     }
 
     #[repr(C)]
@@ -422,6 +731,28 @@ mod io {
     impl<T> NewWithNullPtr for *mut T {
         fn new_with_null_ptr() -> Self {
             std::ptr::null_mut()
+        }
+    }
+
+    impl NewWithNullPtr for wire_Characteristic {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                ptr: core::ptr::null(),
+            }
+        }
+    }
+
+    impl NewWithNullPtr for wire_BleCharacteristic {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                characteristic: wire_Characteristic::new_with_null_ptr(),
+            }
+        }
+    }
+
+    impl Default for wire_BleCharacteristic {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
         }
     }
 

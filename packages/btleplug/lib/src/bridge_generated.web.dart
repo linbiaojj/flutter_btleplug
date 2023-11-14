@@ -19,6 +19,11 @@ class BtleplugPlatform extends FlutterRustBridgeBase<BtleplugWire> with FlutterR
 // Section: api2wire
 
   @protected
+  Object api2wire_Characteristic(Characteristic raw) {
+    return raw.shareOrMove();
+  }
+
+  @protected
   String api2wire_String(String raw) {
     return raw;
   }
@@ -29,10 +34,25 @@ class BtleplugPlatform extends FlutterRustBridgeBase<BtleplugWire> with FlutterR
   }
 
   @protected
+  List<dynamic> api2wire_ble_characteristic(BleCharacteristic raw) {
+    return [
+      api2wire_Characteristic(raw.characteristic)
+    ];
+  }
+
+  @protected
+  List<dynamic> api2wire_box_autoadd_ble_characteristic(BleCharacteristic raw) {
+    return api2wire_ble_characteristic(raw);
+  }
+
+  @protected
   Uint8List api2wire_uint_8_list(Uint8List raw) {
     return raw;
   }
 // Section: finalizer
+
+  late final Finalizer<PlatformPointer> _CharacteristicFinalizer = Finalizer<PlatformPointer>(inner.drop_opaque_Characteristic);
+  Finalizer<PlatformPointer> get CharacteristicFinalizer => _CharacteristicFinalizer;
 }
 
 // Section: WASM wire module
@@ -55,7 +75,21 @@ class BtleplugWasmModule implements WasmModule {
 
   external dynamic /* void */ wire_disconnect(NativePortType port_, String id);
 
+  external dynamic /* void */ wire_discover_services(NativePortType port_, String id);
+
   external dynamic /* void */ wire_create_log_stream(NativePortType port_);
+
+  external dynamic /* void */ wire_uuid__method__BleCharacteristic(NativePortType port_, List<dynamic> that);
+
+  external dynamic /* void */ wire_service_uuid__method__BleCharacteristic(NativePortType port_, List<dynamic> that);
+
+  external dynamic /* void */ wire_properties__method__BleCharacteristic(NativePortType port_, List<dynamic> that);
+
+  external dynamic /* void */ wire_descriptors__method__BleCharacteristic(NativePortType port_, List<dynamic> that);
+
+  external dynamic /*  */ drop_opaque_Characteristic(ptr);
+
+  external int /* *const c_void */ share_opaque_Characteristic(ptr);
 }
 
 // Section: WASM wire connector
@@ -73,5 +107,19 @@ class BtleplugWire extends FlutterRustBridgeWasmWireBase<BtleplugWasmModule> {
 
   void wire_disconnect(NativePortType port_, String id) => wasmModule.wire_disconnect(port_, id);
 
+  void wire_discover_services(NativePortType port_, String id) => wasmModule.wire_discover_services(port_, id);
+
   void wire_create_log_stream(NativePortType port_) => wasmModule.wire_create_log_stream(port_);
+
+  void wire_uuid__method__BleCharacteristic(NativePortType port_, List<dynamic> that) => wasmModule.wire_uuid__method__BleCharacteristic(port_, that);
+
+  void wire_service_uuid__method__BleCharacteristic(NativePortType port_, List<dynamic> that) => wasmModule.wire_service_uuid__method__BleCharacteristic(port_, that);
+
+  void wire_properties__method__BleCharacteristic(NativePortType port_, List<dynamic> that) => wasmModule.wire_properties__method__BleCharacteristic(port_, that);
+
+  void wire_descriptors__method__BleCharacteristic(NativePortType port_, List<dynamic> that) => wasmModule.wire_descriptors__method__BleCharacteristic(port_, that);
+
+  dynamic /*  */ drop_opaque_Characteristic(ptr) => wasmModule.drop_opaque_Characteristic(ptr);
+
+  int /* *const c_void */ share_opaque_Characteristic(ptr) => wasmModule.share_opaque_Characteristic(ptr);
 }

@@ -9,13 +9,14 @@ use tokio::sync::{self, mpsc, Mutex};
 
 mod setup;
 pub use setup::*;
+pub mod device;
 mod error;
-pub mod scan;
 pub mod event;
+pub mod scan;
 pub use error::Error;
 use tokio::time;
 
-use crate::logger::log;
+use self::device::BleService;
 
 enum Command {
     Scan {
@@ -30,6 +31,10 @@ enum Command {
     },
     Disconnect {
         id: String,
+    },
+    DiscoverService {
+        id: String,
+        sink: StreamSink<Vec<BleService>>,
     },
 }
 
@@ -113,8 +118,11 @@ pub fn init() -> Result<()> {
                 Command::Event { sink } => {
                     tokio::spawn(async { event::inner_events(sink).await.unwrap() });
                 }
-                Command::Connect { id } => inner_connect(id).await.unwrap(),
-                Command::Disconnect { id } => inner_disconnect(id).await.unwrap(),
+                Command::Connect { id } => device::inner_connect(id).await.unwrap(),
+                Command::Disconnect { id } => device::inner_disconnect(id).await.unwrap(),
+                Command::DiscoverService { id, sink } => {
+                    device::inner_discover_services(id, sink).await.unwrap()
+                }
             }
         }
     });
@@ -127,27 +135,4 @@ async fn init_adapter() -> Adapter {
     let manager = Manager::new().await.expect("Init manager failed!");
     let adapters = manager.adapters().await.expect("Get adapters failed!");
     adapters.into_iter().next().expect("cannot fail")
-}
-
-pub fn connect(id: String) -> Result<()> {
-    log(format!("Try to connect to: {id}"));
-    send(Command::Connect { id })
-}
-
-async fn inner_connect(id: String) -> Result<()> {
-    log(format!("Try to connect to: {id}"));
-    let devices = DEVICES.lock().await;
-    let device = devices.get(&id).ok_or(Error::UnknownPeripheral(id))?;
-    device.connect().await
-}
-
-pub fn disconnect(id: String) -> Result<()> {
-    send(Command::Disconnect { id })
-}
-
-async fn inner_disconnect(id: String) -> Result<()> {
-    log(format!("Try to disconnect from: {id}"));
-    let devices = DEVICES.lock().await;
-    let device = devices.get(&id).ok_or(Error::UnknownPeripheral(id))?;
-    device.disconnect().await
 }

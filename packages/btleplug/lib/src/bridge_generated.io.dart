@@ -17,6 +17,13 @@ class BtleplugPlatform extends FlutterRustBridgeBase<BtleplugWire> {
 // Section: api2wire
 
   @protected
+  wire_Characteristic api2wire_Characteristic(Characteristic raw) {
+    final ptr = inner.new_Characteristic();
+    _api_fill_to_wire_Characteristic(raw, ptr);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_uint_8_list> api2wire_String(String raw) {
     return api2wire_uint_8_list(utf8.encoder.convert(raw));
   }
@@ -31,6 +38,13 @@ class BtleplugPlatform extends FlutterRustBridgeBase<BtleplugWire> {
   }
 
   @protected
+  ffi.Pointer<wire_BleCharacteristic> api2wire_box_autoadd_ble_characteristic(BleCharacteristic raw) {
+    final ptr = inner.new_box_autoadd_ble_characteristic_0();
+    _api_fill_to_wire_ble_characteristic(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_uint_8_list> api2wire_uint_8_list(Uint8List raw) {
     final ans = inner.new_uint_8_list_0(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
@@ -38,7 +52,21 @@ class BtleplugPlatform extends FlutterRustBridgeBase<BtleplugWire> {
   }
 // Section: finalizer
 
+  late final OpaqueTypeFinalizer _CharacteristicFinalizer = OpaqueTypeFinalizer(inner._drop_opaque_CharacteristicPtr);
+  OpaqueTypeFinalizer get CharacteristicFinalizer => _CharacteristicFinalizer;
 // Section: api_fill_to_wire
+
+  void _api_fill_to_wire_Characteristic(Characteristic apiObj, wire_Characteristic wireObj) {
+    wireObj.ptr = apiObj.shareOrMove();
+  }
+
+  void _api_fill_to_wire_ble_characteristic(BleCharacteristic apiObj, wire_BleCharacteristic wireObj) {
+    wireObj.characteristic = api2wire_Characteristic(apiObj.characteristic);
+  }
+
+  void _api_fill_to_wire_box_autoadd_ble_characteristic(BleCharacteristic apiObj, ffi.Pointer<wire_BleCharacteristic> wireObj) {
+    _api_fill_to_wire_ble_characteristic(apiObj, wireObj.ref);
+  }
 }
 
 // ignore_for_file: camel_case_types, non_constant_identifier_names, avoid_positional_boolean_parameters, annotate_overrides, constant_identifier_names
@@ -191,6 +219,19 @@ class BtleplugWire implements FlutterRustBridgeWireBase {
   late final _wire_disconnectPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_disconnect');
   late final _wire_disconnect = _wire_disconnectPtr.asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
 
+  void wire_discover_services(
+    int port_,
+    ffi.Pointer<wire_uint_8_list> id,
+  ) {
+    return _wire_discover_services(
+      port_,
+      id,
+    );
+  }
+
+  late final _wire_discover_servicesPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_uint_8_list>)>>('wire_discover_services');
+  late final _wire_discover_services = _wire_discover_servicesPtr.asFunction<void Function(int, ffi.Pointer<wire_uint_8_list>)>();
+
   void wire_create_log_stream(
     int port_,
   ) {
@@ -201,6 +242,65 @@ class BtleplugWire implements FlutterRustBridgeWireBase {
 
   late final _wire_create_log_streamPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>('wire_create_log_stream');
   late final _wire_create_log_stream = _wire_create_log_streamPtr.asFunction<void Function(int)>();
+
+  void wire_uuid__method__BleCharacteristic(
+    int port_,
+    ffi.Pointer<wire_BleCharacteristic> that,
+  ) {
+    return _wire_uuid__method__BleCharacteristic(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire_uuid__method__BleCharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_BleCharacteristic>)>>('wire_uuid__method__BleCharacteristic');
+  late final _wire_uuid__method__BleCharacteristic = _wire_uuid__method__BleCharacteristicPtr.asFunction<void Function(int, ffi.Pointer<wire_BleCharacteristic>)>();
+
+  void wire_service_uuid__method__BleCharacteristic(
+    int port_,
+    ffi.Pointer<wire_BleCharacteristic> that,
+  ) {
+    return _wire_service_uuid__method__BleCharacteristic(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire_service_uuid__method__BleCharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_BleCharacteristic>)>>('wire_service_uuid__method__BleCharacteristic');
+  late final _wire_service_uuid__method__BleCharacteristic = _wire_service_uuid__method__BleCharacteristicPtr.asFunction<void Function(int, ffi.Pointer<wire_BleCharacteristic>)>();
+
+  void wire_properties__method__BleCharacteristic(
+    int port_,
+    ffi.Pointer<wire_BleCharacteristic> that,
+  ) {
+    return _wire_properties__method__BleCharacteristic(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire_properties__method__BleCharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_BleCharacteristic>)>>('wire_properties__method__BleCharacteristic');
+  late final _wire_properties__method__BleCharacteristic = _wire_properties__method__BleCharacteristicPtr.asFunction<void Function(int, ffi.Pointer<wire_BleCharacteristic>)>();
+
+  void wire_descriptors__method__BleCharacteristic(
+    int port_,
+    ffi.Pointer<wire_BleCharacteristic> that,
+  ) {
+    return _wire_descriptors__method__BleCharacteristic(
+      port_,
+      that,
+    );
+  }
+
+  late final _wire_descriptors__method__BleCharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Pointer<wire_BleCharacteristic>)>>('wire_descriptors__method__BleCharacteristic');
+  late final _wire_descriptors__method__BleCharacteristic = _wire_descriptors__method__BleCharacteristicPtr.asFunction<void Function(int, ffi.Pointer<wire_BleCharacteristic>)>();
+
+  wire_Characteristic new_Characteristic() {
+    return _new_Characteristic();
+  }
+
+  late final _new_CharacteristicPtr = _lookup<ffi.NativeFunction<wire_Characteristic Function()>>('new_Characteristic');
+  late final _new_Characteristic = _new_CharacteristicPtr.asFunction<wire_Characteristic Function()>();
 
   ffi.Pointer<wire_StringList> new_StringList_0(
     int len,
@@ -213,6 +313,13 @@ class BtleplugWire implements FlutterRustBridgeWireBase {
   late final _new_StringList_0Ptr = _lookup<ffi.NativeFunction<ffi.Pointer<wire_StringList> Function(ffi.Int32)>>('new_StringList_0');
   late final _new_StringList_0 = _new_StringList_0Ptr.asFunction<ffi.Pointer<wire_StringList> Function(int)>();
 
+  ffi.Pointer<wire_BleCharacteristic> new_box_autoadd_ble_characteristic_0() {
+    return _new_box_autoadd_ble_characteristic_0();
+  }
+
+  late final _new_box_autoadd_ble_characteristic_0Ptr = _lookup<ffi.NativeFunction<ffi.Pointer<wire_BleCharacteristic> Function()>>('new_box_autoadd_ble_characteristic_0');
+  late final _new_box_autoadd_ble_characteristic_0 = _new_box_autoadd_ble_characteristic_0Ptr.asFunction<ffi.Pointer<wire_BleCharacteristic> Function()>();
+
   ffi.Pointer<wire_uint_8_list> new_uint_8_list_0(
     int len,
   ) {
@@ -223,6 +330,28 @@ class BtleplugWire implements FlutterRustBridgeWireBase {
 
   late final _new_uint_8_list_0Ptr = _lookup<ffi.NativeFunction<ffi.Pointer<wire_uint_8_list> Function(ffi.Int32)>>('new_uint_8_list_0');
   late final _new_uint_8_list_0 = _new_uint_8_list_0Ptr.asFunction<ffi.Pointer<wire_uint_8_list> Function(int)>();
+
+  void drop_opaque_Characteristic(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _drop_opaque_Characteristic(
+      ptr,
+    );
+  }
+
+  late final _drop_opaque_CharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Pointer<ffi.Void>)>>('drop_opaque_Characteristic');
+  late final _drop_opaque_Characteristic = _drop_opaque_CharacteristicPtr.asFunction<void Function(ffi.Pointer<ffi.Void>)>();
+
+  ffi.Pointer<ffi.Void> share_opaque_Characteristic(
+    ffi.Pointer<ffi.Void> ptr,
+  ) {
+    return _share_opaque_Characteristic(
+      ptr,
+    );
+  }
+
+  late final _share_opaque_CharacteristicPtr = _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>>('share_opaque_Characteristic');
+  late final _share_opaque_Characteristic = _share_opaque_CharacteristicPtr.asFunction<ffi.Pointer<ffi.Void> Function(ffi.Pointer<ffi.Void>)>();
 
   void free_WireSyncReturn(
     WireSyncReturn ptr,
@@ -250,6 +379,14 @@ final class wire_StringList extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+}
+
+final class wire_Characteristic extends ffi.Struct {
+  external ffi.Pointer<ffi.Void> ptr;
+}
+
+final class wire_BleCharacteristic extends ffi.Struct {
+  external wire_Characteristic characteristic;
 }
 
 typedef DartPostCObjectFnType = ffi.Pointer<ffi.NativeFunction<ffi.Bool Function(DartPort port_id, ffi.Pointer<ffi.Void> message)>>;
